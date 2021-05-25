@@ -1,30 +1,44 @@
-<script lang="ts">
-	export let name: string;
+<script lang="typescript">
+	import { Col, Container, Row, Toast, ToastHeader, ToastBody } from 'sveltestrap';
+
+	async function getRandomStar(): Promise<string> {
+			const response = await fetch('/api/message');
+
+			if (response.ok) {
+				return JSON.parse(await response.text()).star;
+			} else {
+				console.log(await response.text())
+				throw new Error();
+			}
+	}
+
+	const promise = getRandomStar();
 </script>
+	
+<svelte:head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css">
+</svelte:head>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
+<Container>
+	<Row>
+		<Col sm={{ size: 8, offset: 2 }}>
+			<h1>StarLog</h1>
 
-<style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
-</style>
+			{#await promise}
+				<p>Fetching your random star...</p>
+			{:then starName} 
+				<Toast>
+					<ToastHeader>Clear Skies! :)</ToastHeader>
+					<ToastBody>
+						Your random star is {starName}
+					</ToastBody>
+				</Toast>
+			{:catch err}
+				<Toast>
+					<ToastHeader>Cloudy Skies! :(</ToastHeader>
+					<ToastBody>There was a problem fetching your random star.</ToastBody>
+				</Toast>
+			{/await}
+		</Col>
+	</Row>
+</Container>
