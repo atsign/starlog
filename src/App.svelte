@@ -1,55 +1,11 @@
 <script lang="typescript">
 	import {
-		Button,
 		Col,
 		Container,
-		Icon,
 		Row
 	} from 'sveltestrap';
 
-	import type { ObservationListModel } from './models/ObservationListModel';
-
 	import ObservationList from './ObservationList.svelte';
-
-	const fakeObservations: ObservationListModel[] = [
-		{
-			date: new Date(2021, 4, 24),
-			observations: [
-				{
-					dateTime: new Date(2021, 4, 24, 22, 30),
-					celestialObject: {
-						name: "Coma Star Cluster",
-						rightAscension: "12hr 23m 34s",
-						declination: "+25deg 45' 33\"",
-					},
-					notes: 'Lorem ipsum dolar sit amet'
-				},
-				{
-					dateTime: new Date(2021, 4, 24, 22, 21),
-					celestialObject: {
-						name: "Messier 13",
-						rightAscension: "16hr 42m 28s",
-						declination: "+36deg 25' 08\"",
-					},
-					notes: 'Lorem ipsum dolar sit amet'
-				}
-			]
-		},
-		{
-			date: new Date(2021, 4, 21),
-			observations: [
-				{
-					dateTime: new Date(2021, 4, 21, 23, 7),
-					celestialObject: {
-						name: "Messier 13",
-						rightAscension: "16hr 42m 28s",
-						declination: "+36deg 25' 08\"",
-					},
-					notes: 'Lorem ipsum dolar sit amet'
-				}
-			]
-		}
-	];
 </script>
 	
 <svelte:head>
@@ -69,10 +25,7 @@
 <Container>
 	<Row>
 		<Col lg={{ size: 6, offset: 3 }}>
-			<Button size="lg" color="success" style="margin: 26px 0 20px">
-				<Icon name="journal-plus" /> New Observation
-			</Button>
-			<ObservationList observationLists={fakeObservations} />
+			<ObservationList />
 		</Col>
 	</Row>
 </Container>
