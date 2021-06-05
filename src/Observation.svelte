@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { createEventDispatcher } from 'svelte';
+
     import {
         Button,
         ButtonGroup,
@@ -21,6 +23,12 @@
     });
 
     export let observation: ObservationModel;
+
+    const dispatch = createEventDispatcher();
+
+    function handleDeleteClick() {
+        dispatch('observationDelete', { observationId: observation.id });
+    }
 </script>
 
 <Card style="margin-bottom: 54px;">
@@ -47,7 +55,7 @@
             <Button color="primary" size="sm" outline>
                 <Icon name="pencil-square" />
             </Button>
-            <Button color="danger" size="sm" outline>
+            <Button color="danger" size="sm" outline on:click={handleDeleteClick}>
                 <Icon name="trash2" />
             </Button>
         </ButtonGroup>

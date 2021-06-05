@@ -29,6 +29,10 @@
         }
     }
 
+    function handleObservationDelete(event) {
+        observationStore.deleteObservation(event.detail.observationId);
+    }
+
     function mapObservationsToDates(observations: ObservationModel[]): Map<string, ObservationModel[]> {
         const observationMap = new Map<string, ObservationModel[]>();
 
@@ -57,7 +61,8 @@
     <hr />
     <h4 class="display-6">{date}</h4>
     {#each observations as observation}
-        <Observation observation={observation} />
+        <Observation observation={observation}
+            on:observationDelete={handleObservationDelete} />
     {/each}
 {:else }
     <p class="text-muted">Add some observations to get started!</p>

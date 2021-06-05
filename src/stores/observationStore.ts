@@ -8,23 +8,35 @@ export interface IObservationStore {
 
 export class ObservationStore implements IObservationStore {
     private _store: Writable<ObservationModel[]>;
+    private _currentId: number = 1;
 
     constructor() {
         this._store = writable([]);
     }
 
     addObservation(observation: ObservationModel): void {
-        this._store.update(observations => this.updateObservationStore(observation, observations));
+        this._store.update(observations => this.addObservationToStore(observation, observations));
+    }
+
+    deleteObservation(observationId: number): void {
+        this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
     }
 
     subscribe(subscriber: Subscriber<ObservationModel[]>): Unsubscriber {
         return this._store.subscribe(subscriber);
     }
 
-    private updateObservationStore(observation: ObservationModel, observations: ObservationModel[]): ObservationModel[] {
+    private addObservationToStore(observation: ObservationModel, observations: ObservationModel[]): ObservationModel[] {
+        observation.id = this._currentId++; // Temporary solution. These should be unique identifiers.
         observations.push(observation);
 
         return this.sortObservations(observations);
+    }
+
+    private deleteObservationFromStore(observationId: number, observations: ObservationModel[]): ObservationModel[] {
+        const indexToDelete = observations.findIndex(observation => observation.id === observationId);
+        observations.splice(indexToDelete, 1);
+        return observations;
     }
 
     private sortObservations(observations: ObservationModel[]): ObservationModel[] {
