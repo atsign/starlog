@@ -3,6 +3,7 @@ import type { ObservationModel } from "../models/ObservationModel";
 
 export interface IObservationStore {
     addObservation(observation: ObservationModel): void;
+    editObservation(observation: ObservationModel): void;
     subscribe(subscriber: Subscriber<ObservationModel[]>): Unsubscriber;
 }
 
@@ -18,6 +19,10 @@ export class ObservationStore implements IObservationStore {
         this._store.update(observations => this.addObservationToStore(observation, observations));
     }
 
+    editObservation(observation: ObservationModel): void {
+        this._store.update(observations => this.editObservationInStore(observation, observations));
+    }
+
     deleteObservation(observationId: number): void {
         this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
     }
@@ -29,6 +34,18 @@ export class ObservationStore implements IObservationStore {
     private addObservationToStore(observation: ObservationModel, observations: ObservationModel[]): ObservationModel[] {
         observation.id = this._currentId++; // Temporary solution. These should be unique identifiers.
         observations.push(observation);
+
+        return this.sortObservations(observations);
+    }
+
+    private editObservationInStore(observation: ObservationModel, observations: ObservationModel[]): ObservationModel[] {
+        observations = observations.map(thisObservation => {
+            if (thisObservation.id === observation.id) {
+                return observation;
+            } else {
+                return thisObservation;
+            }
+        });
 
         return this.sortObservations(observations);
     }

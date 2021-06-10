@@ -29,6 +29,10 @@
     function handleDeleteClick() {
         dispatch('observationDelete', { observationId: observation.id });
     }
+
+    function dispatchEvent(eventName: string) {
+        dispatch(eventName, { observationId: observation.id });
+    }
 </script>
 
 <Card style="margin-bottom: 54px;">
@@ -52,10 +56,10 @@
     </CardBody>
     <CardFooter>
         <ButtonGroup>
-            <Button color="primary" size="sm" outline>
+            <Button color="primary" size="sm" outline on:click={() => dispatchEvent('observationEdit')}>
                 <Icon name="pencil-square" />
             </Button>
-            <Button color="danger" size="sm" outline on:click={handleDeleteClick}>
+            <Button color="danger" size="sm" outline on:click={() => dispatchEvent('observationDelete')}>
                 <Icon name="trash2" />
             </Button>
         </ButtonGroup>

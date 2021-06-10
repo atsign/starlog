@@ -19,21 +19,26 @@
     function handleSave() {
         // TODO: input validation :)
 
-        const newObservation: ObservationModel = {
+        const observationToSave: ObservationModel = {
             notes,
-            dateTime: new Date(observatinDate),
-            celestialObject: $celestialObjects.find(obj => obj.id.toString() === selectedObjectId.toString())
+            dateTime: new Date(observationDate),
+            celestialObject: $celestialObjects.find(obj => obj.id.toString() === selectedObjectId.toString()),
+            id: observationToEdit?.id
         }
 
-        dispatch('observationSave', newObservation);
+        dispatch('observationSave', observationToSave);
     }
 
-    let observatinDate: string;
-    let selectedObjectId: string;
-    let notes: string;
+    export let observationToEdit: ObservationModel;
+
+    let observationDate: string = observationToEdit?.dateTime?.toLocaleString();
+    let selectedObjectId: string = observationToEdit?.celestialObject?.id?.toString();
+    let notes: string = observationToEdit?.notes;
+
+    $: selectedObject = $celestialObjects.find(obj => obj.id.toString() === selectedObjectId?.toString());
 </script>
 
-<h3>New Observation</h3>
+<h3>{observationToEdit ? 'Edit' : 'New'} Observation</h3>
 
 <FormGroup>
     <Label for="dateAndTime">Date and Time</Label>
@@ -41,11 +46,14 @@
            type="datetime-local"
            id="dateAndTime"
            placeholder="Date and time"
-           bind:value={observatinDate} />
+           bind:value={observationDate} />
 </FormGroup>
 
 <FormGroup>
-    <Label for="celestialObject">Celestial Object</Label>
+    <Label for="celestialObject">
+        Celestial Object
+        {#if selectedObject}: {selectedObject.name}{/if}
+    </Label>
     <Input type="select"
            name="celestialObject"
            id="celestialObject"

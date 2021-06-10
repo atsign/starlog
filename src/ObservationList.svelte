@@ -11,7 +11,7 @@
     import ObservationForm from './ObservationForm.svelte';
     import { ObservationStore } from './stores/observationStore';
 
-    const dateFormatter = new Intl.DateTimeFormat('en', {
+    const dateFormatter = new Intl.DateTimeFormat('en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric'
@@ -19,18 +19,32 @@
 
     let isModalOpen = false;
     let observationStore = new ObservationStore();
+    let editId: number;
 
     function handleObservationSave(event) {
-        const newObservation: ObservationModel = event?.detail;
+        const observationToSave: ObservationModel = event?.detail;
 
-        if (newObservation) {
-            observationStore.addObservation(newObservation);
-            isModalOpen = false;
+        if (observationToSave && $observationStore?.find(observation => observation.id === observationToSave.id)) {
+            observationStore.editObservation(observationToSave);
+        } else if (observationToSave) {
+            observationStore.addObservation(observationToSave);
         }
+
+        isModalOpen = false;
     }
 
     function handleObservationDelete(event) {
         observationStore.deleteObservation(event.detail.observationId);
+    }
+
+    function handleObservationEdit(event) {
+        editId = event.detail.observationId;
+        isModalOpen = true;
+    }
+
+    function handleCancel() {
+        editId = undefined;
+        isModalOpen = false;
     }
 
     function mapObservationsToDates(observations: ObservationModel[]): Map<string, ObservationModel[]> {
@@ -54,7 +68,11 @@
 </Button>
 
 <Modal body isOpen={isModalOpen}>
-    <ObservationForm on:cancel={() => isModalOpen = false} on:observationSave={handleObservationSave} />
+    {#if isModalOpen}
+    <ObservationForm on:cancel={handleCancel}
+        on:observationSave={handleObservationSave}
+        observationToEdit={$observationStore.find(observation => observation.id === editId)} />
+    {/if}
 </Modal>
 
 {#each [...mapObservationsToDates($observationStore)] as [date, observations]}
@@ -62,7 +80,8 @@
     <h4 class="display-6">{date}</h4>
     {#each observations as observation}
         <Observation observation={observation}
-            on:observationDelete={handleObservationDelete} />
+            on:observationDelete={handleObservationDelete}
+            on:observationEdit={handleObservationEdit} />
     {/each}
 {:else }
     <p class="text-muted">Add some observations to get started!</p>
