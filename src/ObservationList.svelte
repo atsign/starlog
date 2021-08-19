@@ -1,9 +1,4 @@
 <script lang="ts">
-	import {
-		Button,
-		Icon,
-        Modal
-	} from 'sveltestrap';
 
     import type { ObservationModel } from './models/ObservationModel';
 
@@ -63,17 +58,17 @@
     }
 </script>
 
-<Button size="lg" color="success" style="margin: 26px 0 20px" on:click={() => isModalOpen = true}>
-    <Icon name="journal-plus" /> New Observation
-</Button>
+<button style="margin: 26px 0 20px" on:click={() => isModalOpen = true}>
+    New Observation
+</button>
 
-<Modal body isOpen={isModalOpen}>
+<div>
     {#if isModalOpen}
     <ObservationForm on:cancel={handleCancel}
         on:observationSave={handleObservationSave}
         observationToEdit={$observationStore.find(observation => observation.id === editId)} />
     {/if}
-</Modal>
+</div>
 
 {#each [...mapObservationsToDates($observationStore)] as [date, observations]}
     <hr />
