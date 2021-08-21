@@ -1,19 +1,12 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-
     import {
+        Tile,
         Button,
-        ButtonGroup,
-        Card,
-        CardHeader,
-        CardSubtitle,
-        CardTitle,
-        CardBody,
-        CardText,
-        CardFooter,
-        Icon
-    } from 'sveltestrap';
-    
+        ButtonSet
+    } from 'carbon-components-svelte';
+    import Edit16 from 'carbon-icons-svelte/lib/Edit16';
+    import Delete16 from 'carbon-icons-svelte/lib/Delete16';
+    import { createEventDispatcher } from 'svelte';
     import type { ObservationModel } from './models/ObservationModel';
 
     const timeFormatter = new Intl.DateTimeFormat('en', {
@@ -35,39 +28,33 @@
     }
 </script>
 
-<Card style="margin-bottom: 54px;">
-    <CardHeader>
-        <CardTitle>
-            <time>{timeFormatter.format(observation.dateTime)}</time>
-            {observation.celestialObject.name}
-        </CardTitle>
-    </CardHeader>
-    <CardBody>
-        <CardSubtitle>
-            <div class="text-muted">
-                <strong>R.A.</strong> {observation.celestialObject.rightAscension}
-                <br/>
-                <strong>Dec.</strong> {observation.celestialObject.declination}<br/>
-            </div>
-        </CardSubtitle>
-        <CardText style="margin-top: 20px;">
-            <p>{observation.notes}</p>
-        </CardText>
-    </CardBody>
-    <CardFooter>
-        <ButtonGroup>
-            <Button color="primary" size="sm" outline on:click={() => dispatchEvent('observationEdit')}>
-                <Icon name="pencil-square" />
-            </Button>
-            <Button color="danger" size="sm" outline on:click={() => dispatchEvent('observationDelete')}>
-                <Icon name="trash2" />
-            </Button>
-        </ButtonGroup>
-    </CardFooter>
-</Card>
+<Tile light={true}>
+    <h3>
+        <strong>{observation.celestialObject.name}</strong> -
+        <time>{timeFormatter.format(observation.dateTime)}</time>
+    </h3>
+    <div class="location">
+        <strong>R.A.</strong> {observation.celestialObject.rightAscension}
+        <strong>Dec.</strong> {observation.celestialObject.declination}<br/>
+    </div>
+    <p class="notes">{observation.notes}</p>
+
+    <ButtonSet>
+        <Button on:click={() => dispatchEvent('observationEdit')} icon={Edit16}>
+            Edit
+        </Button>
+        <Button kind="danger" on:click={() => dispatchEvent('observationDelete')} icon={Delete16}>
+            Delete
+        </Button>
+    </ButtonSet>
+</Tile>
 
 <style>
-    time {
-        font-weight: 100;
+    .location {
+        margin-bottom: 20px;
+    }
+
+    .notes {
+        margin-bottom: 20px;
     }
 </style>

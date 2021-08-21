@@ -1,13 +1,12 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
-    import { celestialObjects } from './stores/celestialObjectStore';
-
     import {
         Button,
-        FormGroup,
-        Input,
-        Label
-    } from 'sveltestrap';
+        ButtonSet,
+        TextInput,
+        TextArea
+    } from 'carbon-components-svelte';
+    import { createEventDispatcher } from 'svelte';
+    import { celestialObjects } from './stores/celestialObjectStore';
     import type { ObservationModel } from './models/ObservationModel';
 
     const dispatch = createEventDispatcher();
@@ -38,23 +37,21 @@
     $: selectedObject = $celestialObjects.find(obj => obj.id.toString() === selectedObjectId?.toString());
 </script>
 
-<h3>{observationToEdit ? 'Edit' : 'New'} Observation</h3>
-
-<FormGroup>
-    <Label for="dateAndTime">Date and Time</Label>
-    <Input name="dateAndTime"
+<div>
+    <label for="dateAndTime">Date and Time</label>
+    <TextInput name="dateAndTime"
            type="datetime-local"
            id="dateAndTime"
            placeholder="Date and time"
            bind:value={observationDate} />
-</FormGroup>
+</div>
 
-<FormGroup>
-    <Label for="celestialObject">
+<div>
+    <label for="celestialObject">
         Celestial Object
         {#if selectedObject}: {selectedObject.name}{/if}
-    </Label>
-    <Input type="select"
+    </label>
+    <select
            name="celestialObject"
            id="celestialObject"
            placeholder="Celestial object"
@@ -63,16 +60,17 @@
         {#each $celestialObjects as celestialObject}
             <option value="{celestialObject.id}">{celestialObject.name}</option>
         {/each}
-    </Input>
-</FormGroup>
+    </select>
+</div>
 
-<FormGroup>
-    <Label for="ntoes">Notes</Label>
-    <Input type="textarea"
-           name="notes"
+<div>
+    <label for="ntoes">Notes</label>
+    <TextArea name="notes"
            id="notes"
            bind:value={notes} />
-</FormGroup>
+</div>
 
-<Button color="success" on:click={handleSave}>Save</Button>
-<Button color="danger" outline on:click={handleCancel}>Cancel</Button>
+<ButtonSet>
+    <Button on:click={handleSave}>Save</Button>
+    <Button kind="secondary" on:click={handleCancel}>Cancel</Button>
+</ButtonSet>

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import {
-		Button,
-		Icon,
-        Modal
-	} from 'sveltestrap';
-
+    import {
+        Button,
+        Modal,
+        Tile
+    } from 'carbon-components-svelte';
+    import Add16 from 'carbon-icons-svelte/lib/Add16';
     import type { ObservationModel } from './models/ObservationModel';
 
     import Observation from './Observation.svelte';
@@ -20,6 +20,12 @@
     let isModalOpen = false;
     let observationStore = new ObservationStore();
     let editId: number;
+    $: observationToEdit = $observationStore.find(observation => observation.id === editId);
+
+    function handleNewObservation() {
+        isModalOpen = true;
+        editId = undefined;
+    }
 
     function handleObservationSave(event) {
         const observationToSave: ObservationModel = event?.detail;
@@ -63,32 +69,33 @@
     }
 </script>
 
-<Button size="lg" color="success" style="margin: 26px 0 20px" on:click={() => isModalOpen = true}>
-    <Icon name="journal-plus" /> New Observation
-</Button>
-
-<Modal body isOpen={isModalOpen}>
+<Modal passiveModal bind:open={isModalOpen} modalHeading={observationToEdit ? 'Edit Observation' : 'New Obsevation'}>
     {#if isModalOpen}
     <ObservationForm on:cancel={handleCancel}
         on:observationSave={handleObservationSave}
-        observationToEdit={$observationStore.find(observation => observation.id === editId)} />
+        observationToEdit={observationToEdit} />
     {/if}
 </Modal>
 
+<Button icon={Add16} on:click={handleNewObservation} style="margin-bottom: 40px">
+    New Observation
+</Button>
+
 {#each [...mapObservationsToDates($observationStore)] as [date, observations]}
-    <hr />
-    <h4 class="display-6">{date}</h4>
+<Tile>
+    <h2>{date}</h2>
     {#each observations as observation}
         <Observation observation={observation}
             on:observationDelete={handleObservationDelete}
             on:observationEdit={handleObservationEdit} />
-    {/each}
+    {/each}        
+</Tile>
 {:else }
-    <p class="text-muted">Add some observations to get started!</p>
+    <p>Add some observations to get started!</p>
 {/each}
 
 <style>
-    h4 {
-        margin: 24px 0;
+    h2 {
+        margin-bottom: 20px;
     }
 </style>
