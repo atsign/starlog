@@ -1,23 +1,41 @@
 <script lang="typescript">
+	import {
+		Column,
+		Content,
+		Grid,
+		Header,
+		Row,
+		SideNav,
+		SideNavItems,
+		SideNavLink,
+		SkipToContent
+	} from 'carbon-components-svelte';
 	import "carbon-components-svelte/css/g90.css";
 	import ObservationList from './ObservationList.svelte';
+
+	let isSideNavOpen = true;
 </script>
-	
-<svelte:head>
-  
-</svelte:head>
 
-<header>
-	<h1 class="display-4">StarLog</h1>
-</header>
-<div>
-	<ObservationList />
-</div>
+<Header company="StarLog" bind:isSideNavOpen persistentHamburgerMenu={true}>
+	<div slot="skip-to-content">
+		<SkipToContent />
+	</div>
+</Header>
 
-<style>
-	header {
-		background-color: rgb(0, 0, 0);
-		color: white;
-		padding: 10px;
-	}
-</style>
+<SideNav bind:isOpen={isSideNavOpen}>
+	<SideNavItems>
+		<SideNavLink text="Link 1"></SideNavLink>
+		<SideNavLink text="Link 2"></SideNavLink>
+		<SideNavLink text="Link 3"></SideNavLink>
+	</SideNavItems>
+</SideNav>
+
+<Content>
+	<Grid>
+		<Row>
+			<Column>
+				<ObservationList />
+			</Column>
+		</Row>
+	</Grid>
+</Content>

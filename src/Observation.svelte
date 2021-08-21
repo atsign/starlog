@@ -1,4 +1,11 @@
 <script lang="ts">
+    import {
+        Tile,
+        Button,
+        ButtonSet
+    } from 'carbon-components-svelte';
+    import Edit16 from 'carbon-icons-svelte/lib/Edit16';
+    import Delete16 from 'carbon-icons-svelte/lib/Delete16';
     import { createEventDispatcher } from 'svelte';
     import type { ObservationModel } from './models/ObservationModel';
 
@@ -21,21 +28,33 @@
     }
 </script>
 
-<time>{timeFormatter.format(observation.dateTime)}</time>
-{observation.celestialObject.name}
-<div>
-    <strong>R.A.</strong> {observation.celestialObject.rightAscension}
-    <br/>
-    <strong>Dec.</strong> {observation.celestialObject.declination}<br/>
-</div>
-<p>{observation.notes}</p>
+<Tile light={true}>
+    <h3>
+        <strong>{observation.celestialObject.name}</strong> -
+        <time>{timeFormatter.format(observation.dateTime)}</time>
+    </h3>
+    <div class="location">
+        <strong>R.A.</strong> {observation.celestialObject.rightAscension}
+        <strong>Dec.</strong> {observation.celestialObject.declination}<br/>
+    </div>
+    <p class="notes">{observation.notes}</p>
 
-<button on:click={() => dispatchEvent('observationEdit')}>
-    Edit
-</button>
-<button on:click={() => dispatchEvent('observationDelete')}>
-    Delete
-</button>
+    <ButtonSet>
+        <Button on:click={() => dispatchEvent('observationEdit')} icon={Edit16}>
+            Edit
+        </Button>
+        <Button kind="danger" on:click={() => dispatchEvent('observationDelete')} icon={Delete16}>
+            Delete
+        </Button>
+    </ButtonSet>
+</Tile>
+
 <style>
-    
+    .location {
+        margin-bottom: 20px;
+    }
+
+    .notes {
+        margin-bottom: 20px;
+    }
 </style>

@@ -1,4 +1,10 @@
 <script lang="ts">
+    import {
+        Button,
+        ButtonSet,
+        TextInput,
+        TextArea
+    } from 'carbon-components-svelte';
     import { createEventDispatcher } from 'svelte';
     import { celestialObjects } from './stores/celestialObjectStore';
     import type { ObservationModel } from './models/ObservationModel';
@@ -31,11 +37,9 @@
     $: selectedObject = $celestialObjects.find(obj => obj.id.toString() === selectedObjectId?.toString());
 </script>
 
-<h3>{observationToEdit ? 'Edit' : 'New'} Observation</h3>
-
 <div>
     <label for="dateAndTime">Date and Time</label>
-    <input name="dateAndTime"
+    <TextInput name="dateAndTime"
            type="datetime-local"
            id="dateAndTime"
            placeholder="Date and time"
@@ -61,11 +65,12 @@
 
 <div>
     <label for="ntoes">Notes</label>
-    <input type="textarea"
-           name="notes"
+    <TextArea name="notes"
            id="notes"
            bind:value={notes} />
 </div>
 
-<button on:click={handleSave}>Save</button>
-<button on:click={handleCancel}>Cancel</button>
+<ButtonSet>
+    <Button on:click={handleSave}>Save</Button>
+    <Button kind="secondary" on:click={handleCancel}>Cancel</Button>
+</ButtonSet>

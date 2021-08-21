@@ -60,3 +60,7 @@ button:not(:disabled):active {
 button:focus {
 	border-color: #666;
 }
+
+.bx--content {
+	background: none !important; /* A hack to fix weird Carbon background color thing */
+}
