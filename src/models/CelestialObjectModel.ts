@@ -2,5 +2,6 @@ export interface CelestialObjectModel {
     name: string;
     rightAscension: string;
     declination: string;
-    id: number;
+    id: string;
+    commonNames: string[]
 }

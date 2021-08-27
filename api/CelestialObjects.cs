@@ -1,44 +1,60 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Cosmos;
+using StarLog.Entities;
+using System.Collections.Generic;
+using StarLog.Models;
+using AutoMapper;
+using System;
+using System.Threading.Tasks;
 
 namespace StarLog
 {
-    public class CelestialObject
+    public static class CelestialObjectsFunction
     {
-        public string Name { get; set; }
-        public string RightAscension { get; set; }
-        public string Declination { get; set; }
-        public int Id { get; set; }
-    }
+        private static string URL = Environment.GetEnvironmentVariable("AzureCosmosEndpoint");
+        private static string KEY = Environment.GetEnvironmentVariable("AzureCosmosKey");
+        private static MapperConfiguration _mapperConfig = new MapperConfiguration(cfg =>
+            cfg.CreateMap<CelestialObject, CelestialObjectModel>()
+                .ForMember(dest => dest.Declination, opts => opts.MapFrom(src => src.Dec))
+                .ForMember(dest => dest.RightAscension, opts => opts.MapFrom(src => src.RA))
+                .ForMember(dest => dest.CommonNames, opts =>
+                    opts.MapFrom(src => src.CommonNames
+                        .Split(",", System.StringSplitOptions.None))));
 
-    public static class CelestialObjects
-    {
         [FunctionName("CelestialObjects")]
-        public static IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
-        {
-            List<CelestialObject> responseMessage = new List<CelestialObject> {
-                new CelestialObject {
-                    Name = "Coma Star Cluster",
-                    RightAscension = "12hr 23m 34s",
-                    Declination = "+25deg 45' 33\"",
-                    Id = 2
-                },
-                new CelestialObject
-                {
-                    Name = "Messier 13",
-                    RightAscension = "16hr 42m 28s",
-                    Declination = "+36deg 25' 08\"",
-                    Id = 1
-                }
-            };
+        {   
+            string searchTerm = ((string)req.Query["search"])?.ToUpper();
+            string queryString = "SELECT TOP 5 * FROM c WHERE CONTAINS(UPPER(c.Name), @term) OR CONTAINS(UPPER(c[\"Common names\"]), @term)";
 
-            return new OkObjectResult(responseMessage);
+            QueryDefinition queryDef = new QueryDefinition(queryString)
+                .WithParameter("@term", searchTerm);
+
+            CosmosClient cosmosClient = new CosmosClient(URL, KEY);
+
+            var iterator = cosmosClient
+                .GetDatabase("StarLog")
+                .GetContainer("CelestialObjects")
+                .GetItemQueryIterator<CelestialObject>(queryDef);
+
+            List<CelestialObjectModel> results = new List<CelestialObjectModel>();
+            while(iterator.HasMoreResults)
+            {
+                var result = await iterator.ReadNextAsync();
+                var mapper = _mapperConfig.CreateMapper();
+                foreach(var item in result.Resource)
+                {
+                    results.Add(mapper.Map<CelestialObjectModel>(item));
+                }
+            }
+
+            return new OkObjectResult(results);
         }
     }
 }

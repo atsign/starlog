@@ -31,9 +31,15 @@
     }
 
     function searchCelestialObjects(term: Event) {
-        return fetch(`http://localhost:7071/api/CelestialObjects?search=${term}`)
+        return fetch(`/api/CelestialObjects?search=${term}`)
             .then(response => response.json())
             .catch(err => console.error('Error fetching celestial objects', err));
+    }
+
+    function getCelestialObjectLabelName(celestialObject: CelestialObjectModel) {
+        return celestialObject.commonNames?.length
+            ? `${celestialObject.name} (${celestialObject.commonNames.slice(0, 3).join(', ')})`
+            : celestialObject.name;
     }
 
     export let observationToEdit: ObservationModel;
@@ -56,9 +62,9 @@
     <label for="celestialObject">Celestial Object</label>
     <AutoComplete searchFunction={searchCelestialObjects}
         delay=200
-        localFiltering=false
-        labelFieldName="name"
+        localFiltering={false}
         valueFieldName="id"
+        labelFunction={getCelestialObjectLabelName}
         bind:selectedItem={selectedObject} />
 </div>
  
