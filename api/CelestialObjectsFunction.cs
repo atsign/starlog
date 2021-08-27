@@ -11,7 +11,7 @@ using AutoMapper;
 using System;
 using System.Threading.Tasks;
 
-namespace StarLog
+namespace StarLog.Function
 {
     public static class CelestialObjectsFunction
     {
