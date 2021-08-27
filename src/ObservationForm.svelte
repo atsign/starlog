@@ -5,11 +5,13 @@
         TextInput,
         TextArea
     } from 'carbon-components-svelte';
+    import AutoComplete from 'simple-svelte-autocomplete';
     import { createEventDispatcher } from 'svelte';
-    import { celestialObjects } from './stores/celestialObjectStore';
     import type { ObservationModel } from './models/ObservationModel';
+    import type { CelestialObjectModel } from './models/CelestialObjectModel';
 
     const dispatch = createEventDispatcher();
+    let celestialObjects: CelestialObjectModel[] = [];
 
     function handleCancel() {
         dispatch('cancel');
@@ -21,20 +23,30 @@
         const observationToSave: ObservationModel = {
             notes,
             dateTime: new Date(observationDate),
-            celestialObject: $celestialObjects.find(obj => obj.id.toString() === selectedObjectId.toString()),
+            celestialObject: selectedObject,
             id: observationToEdit?.id
         }
 
         dispatch('observationSave', observationToSave);
     }
 
+    function searchCelestialObjects(term: Event) {
+        return fetch(`/api/CelestialObjects?search=${term}`)
+            .then(response => response.json())
+            .catch(err => console.error('Error fetching celestial objects', err));
+    }
+
+    function getCelestialObjectLabelName(celestialObject: CelestialObjectModel) {
+        return celestialObject.commonNames?.length
+            ? `${celestialObject.name} (${celestialObject.commonNames.slice(0, 3).join(', ')})`
+            : celestialObject.name;
+    }
+
     export let observationToEdit: ObservationModel;
 
     let observationDate: string = observationToEdit?.dateTime?.toLocaleString();
-    let selectedObjectId: string = observationToEdit?.celestialObject?.id?.toString();
     let notes: string = observationToEdit?.notes;
-
-    $: selectedObject = $celestialObjects.find(obj => obj.id.toString() === selectedObjectId?.toString());
+    let selectedObject = observationToEdit?.celestialObject;
 </script>
 
 <div>
@@ -47,22 +59,15 @@
 </div>
 
 <div>
-    <label for="celestialObject">
-        Celestial Object
-        {#if selectedObject}: {selectedObject.name}{/if}
-    </label>
-    <select
-           name="celestialObject"
-           id="celestialObject"
-           placeholder="Celestial object"
-           bind:value={selectedObjectId}>
-           <option value="">Select an object&hellip;</option>
-        {#each $celestialObjects as celestialObject}
-            <option value="{celestialObject.id}">{celestialObject.name}</option>
-        {/each}
-    </select>
+    <label for="celestialObject">Celestial Object</label>
+    <AutoComplete searchFunction={searchCelestialObjects}
+        delay=200
+        localFiltering={false}
+        valueFieldName="id"
+        labelFunction={getCelestialObjectLabelName}
+        bind:selectedItem={selectedObject} />
 </div>
-
+ 
 <div>
     <label for="ntoes">Notes</label>
     <TextArea name="notes"

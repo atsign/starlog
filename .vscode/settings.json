@@ -2,10 +2,10 @@
     "staticWebApps.appSubpath": "/",
     "staticWebApps.apiSubpath": "api",
     "staticWebApps.outputSubpath": "public",
-    "azureFunctions.deploySubpath": "api",
+    "azureFunctions.deploySubpath": "api/bin/Release/netcoreapp3.1/publish",
     "azureFunctions.postDeployTask": "npm install",
-    "azureFunctions.projectLanguage": "TypeScript",
-    "azureFunctions.projectRuntime": "~2",
+    "azureFunctions.projectLanguage": "C#",
+    "azureFunctions.projectRuntime": "~3",
     "debug.internalConsoleOptions": "neverOpen",
-    "azureFunctions.preDeployTask": "npm prune"
+    "azureFunctions.preDeployTask": "publish (functions)"
 }

@@ -33,10 +33,16 @@
         <strong>{observation.celestialObject.name}</strong> -
         <time>{timeFormatter.format(observation.dateTime)}</time>
     </h3>
+    
+    {#if observation.celestialObject.commonNames?.length}
+    <h4>{observation.celestialObject.commonNames.join(', ')}</h4>
+    {/if}
+
     <div class="location">
         <strong>R.A.</strong> {observation.celestialObject.rightAscension}
         <strong>Dec.</strong> {observation.celestialObject.declination}<br/>
     </div>
+    
     <p class="notes">{observation.notes}</p>
 
     <ButtonSet>
