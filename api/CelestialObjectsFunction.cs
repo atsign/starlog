@@ -22,8 +22,11 @@ namespace StarLog.Function
                 .ForMember(dest => dest.Declination, opts => opts.MapFrom(src => src.Dec))
                 .ForMember(dest => dest.RightAscension, opts => opts.MapFrom(src => src.RA))
                 .ForMember(dest => dest.CommonNames, opts =>
-                    opts.MapFrom(src => src.CommonNames
-                        .Split(",", System.StringSplitOptions.None))));
+                    opts.MapFrom(src =>
+                        src.CommonNames.Length > 0
+                            ? src.CommonNames.Split(",", System.StringSplitOptions.None)
+                            : null as string[]
+                        )));
 
         [FunctionName("CelestialObjects")]
         public static async Task<IActionResult> Run(

@@ -11,7 +11,6 @@
     import type { CelestialObjectModel } from './models/CelestialObjectModel';
 
     const dispatch = createEventDispatcher();
-    let celestialObjects: CelestialObjectModel[] = [];
 
     function handleCancel() {
         dispatch('cancel');
@@ -58,10 +57,14 @@
            bind:value={observationDate} />
 </div>
 
-<div>
+<div id="celestial-object-autocomplete">
     <label for="celestialObject">Celestial Object</label>
     <AutoComplete searchFunction={searchCelestialObjects}
-        delay=200
+        showClear={true}
+        showLoadingIndicator={true}
+        hideArrow={true}
+        minCharactersToSearch=3
+        delay=400
         localFiltering={false}
         valueFieldName="id"
         labelFunction={getCelestialObjectLabelName}
