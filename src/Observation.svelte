@@ -8,20 +8,11 @@
     import Delete16 from 'carbon-icons-svelte/lib/Delete16';
     import { createEventDispatcher } from 'svelte';
     import type { ObservationModel } from './models/ObservationModel';
-
-    const timeFormatter = new Intl.DateTimeFormat('en', {
-        hour12: true,
-        hour: 'numeric',
-        minute: '2-digit'
-    });
+    import { timeFormatter } from './DateTimeFormatters';
 
     export let observation: ObservationModel;
 
     const dispatch = createEventDispatcher();
-
-    function handleDeleteClick() {
-        dispatch('observationDelete', { observationId: observation.id });
-    }
 
     function dispatchEvent(eventName: string) {
         dispatch(eventName, { observationId: observation.id });

@@ -79,3 +79,9 @@ button:focus {
 	background: #f4f4f4;
 	color: #525252;
 }
+
+#observation-datetime-picker input {
+	background-color: #525252;
+	color: #f4f4f4;
+	width: 100%;
+}
