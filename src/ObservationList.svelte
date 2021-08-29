@@ -6,24 +6,21 @@
     } from 'carbon-components-svelte';
     import Add16 from 'carbon-icons-svelte/lib/Add16';
     import type { ObservationModel } from './models/ObservationModel';
-
+    import { dateFormatter } from './DateTimeFormatters';
     import Observation from './Observation.svelte';
     import ObservationForm from './ObservationForm.svelte';
     import { ObservationStore } from './stores/observationStore';
 
-    const dateFormatter = new Intl.DateTimeFormat('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-    });
 
-    let isModalOpen = false;
+    let isModalFormOpen = false;
+    let isModalConfirmOpen = false;
     let observationStore = new ObservationStore();
     let editId: number;
+    let deleteId: number;
     $: observationToEdit = $observationStore.find(observation => observation.id === editId);
 
     function handleNewObservation() {
-        isModalOpen = true;
+        isModalFormOpen = true;
         editId = undefined;
     }
 
@@ -36,21 +33,32 @@
             observationStore.addObservation(observationToSave);
         }
 
-        isModalOpen = false;
+        isModalFormOpen = false;
     }
 
-    function handleObservationDelete(event) {
-        observationStore.deleteObservation(event.detail.observationId);
+    function handleObservationDelete() {
+        observationStore.deleteObservation(deleteId);
+        isModalConfirmOpen = false;
+    }
+
+    function handleObservationDeleteButton(event) {
+        deleteId = event.detail.observationId;
+        isModalConfirmOpen = true;
     }
 
     function handleObservationEdit(event) {
         editId = event.detail.observationId;
-        isModalOpen = true;
+        isModalFormOpen = true;
     }
 
-    function handleCancel() {
+    function handleObservationDeleteCancel() {
+        isModalConfirmOpen = false;
+        deleteId = undefined;
+    }
+
+    function handleFormCancel() {
         editId = undefined;
-        isModalOpen = false;
+        isModalFormOpen = false;
     }
 
     function mapObservationsToDates(observations: ObservationModel[]): Map<string, ObservationModel[]> {
@@ -69,13 +77,22 @@
     }
 </script>
 
-<Modal passiveModal bind:open={isModalOpen} modalHeading={observationToEdit ? 'Edit Observation' : 'New Obsevation'}>
-    {#if isModalOpen}
-    <ObservationForm on:cancel={handleCancel}
+<Modal passiveModal bind:open={isModalFormOpen} modalHeading={observationToEdit ? 'Edit observation' : 'New obsevation'}>
+    {#if isModalFormOpen}
+    <ObservationForm on:cancel={handleFormCancel}
         on:observationSave={handleObservationSave}
         observationToEdit={observationToEdit} />
     {/if}
 </Modal>
+
+<Modal bind:open={isModalConfirmOpen}
+    danger
+    modalHeading="Are you sure you want to delete this observation?"
+    primaryButtonText="Delete"
+    secondaryButtonText="Cancel"
+    on:click:button--secondary={() => handleObservationDeleteCancel()}
+    on:click:button--primary={() => handleObservationDelete()}
+/>
 
 <Button icon={Add16} on:click={handleNewObservation} style="margin-bottom: 40px">
     New Observation
@@ -86,9 +103,9 @@
     <h2>{date}</h2>
     {#each observations as observation}
         <Observation observation={observation}
-            on:observationDelete={handleObservationDelete}
+            on:observationDelete={handleObservationDeleteButton}
             on:observationEdit={handleObservationEdit} />
-    {/each}        
+    {/each}
 </Tile>
 {:else }
     <p>Add some observations to get started!</p>
