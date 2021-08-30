@@ -64,3 +64,24 @@ button:focus {
 .bx--content {
 	background: none !important; /* A hack to fix weird Carbon background color thing */
 }
+
+.autocomplete {
+	width: 100%;
+}
+
+#celestial-object-autocomplete input,
+#celestial-object-autocomplete .autocomplete-list,
+#celestial-object-autocomplete .autocomplete-list-item {
+	background: #525252;
+	color: #f4f4f4;
+}
+#celestial-object-autocomplete .autocomplete-list-item.selected {
+	background: #f4f4f4;
+	color: #525252;
+}
+
+#observation-datetime-picker input {
+	background-color: #525252;
+	color: #f4f4f4;
+	width: 100%;
+}

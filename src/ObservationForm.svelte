@@ -2,24 +2,24 @@
     import {
         Button,
         ButtonSet,
-        TextInput,
         TextArea
     } from 'carbon-components-svelte';
     import AutoComplete from 'simple-svelte-autocomplete';
+    import Flatpickr from 'svelte-flatpickr/src/Flatpickr.svelte';
+    import 'flatpickr/dist/flatpickr.css';
+    import 'flatpickr/dist/themes/dark.css';
     import { createEventDispatcher } from 'svelte';
     import type { ObservationModel } from './models/ObservationModel';
     import type { CelestialObjectModel } from './models/CelestialObjectModel';
+    import { timeFormatter, dateFormatter } from './DateTimeFormatters';
 
     const dispatch = createEventDispatcher();
-    let celestialObjects: CelestialObjectModel[] = [];
 
     function handleCancel() {
         dispatch('cancel');
     }
 
     function handleSave() {
-        // TODO: input validation :)
-
         const observationToSave: ObservationModel = {
             notes,
             dateTime: new Date(observationDate),
@@ -42,26 +42,40 @@
             : celestialObject.name;
     }
 
+    function handleDateChange(event) {
+        const [ selectedDates ] = event.detail;
+        observationDate = selectedDates[0];
+    }
+
     export let observationToEdit: ObservationModel;
 
-    let observationDate: string = observationToEdit?.dateTime?.toLocaleString();
+    let observationDate: Date = observationToEdit?.dateTime;
+    let observationDateStr = observationDate ? `${dateFormatter.format(observationDate)} ${timeFormatter.format(observationDate)}` : null;
     let notes: string = observationToEdit?.notes;
     let selectedObject = observationToEdit?.celestialObject;
+    let flatpickrOptions = {
+        enableTime: true,
+        dateFormat: 'F j, Y h:i K'
+    };
+
+    $: observationIsValid = observationDate != null && selectedObject != null;
 </script>
 
-<div>
+<div id="observation-datetime-picker">
     <label for="dateAndTime">Date and Time</label>
-    <TextInput name="dateAndTime"
-           type="datetime-local"
-           id="dateAndTime"
-           placeholder="Date and time"
-           bind:value={observationDate} />
+    <Flatpickr bind:value={observationDateStr}
+        options={flatpickrOptions}
+        on:change={handleDateChange} />
 </div>
 
-<div>
+<div id="celestial-object-autocomplete">
     <label for="celestialObject">Celestial Object</label>
     <AutoComplete searchFunction={searchCelestialObjects}
-        delay=200
+        showClear={true}
+        showLoadingIndicator={true}
+        hideArrow={true}
+        minCharactersToSearch=3
+        delay=400
         localFiltering={false}
         valueFieldName="id"
         labelFunction={getCelestialObjectLabelName}
@@ -76,6 +90,12 @@
 </div>
 
 <ButtonSet>
-    <Button on:click={handleSave}>Save</Button>
+    <Button on:click={handleSave} disabled={!observationIsValid}>Save</Button>
     <Button kind="secondary" on:click={handleCancel}>Cancel</Button>
 </ButtonSet>
+
+<style>
+    #celestial-object-autocomplete {
+        margin-bottom: 20px;
+    }
+</style>
