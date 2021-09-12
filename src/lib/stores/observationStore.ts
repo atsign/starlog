@@ -1,5 +1,6 @@
-import { Subscriber, Unsubscriber, Writable, writable } from "svelte/store";
-import type { ObservationModel } from "../models/ObservationModel";
+import { writable } from "svelte/store";
+import type { Subscriber, Unsubscriber, Writable } from "svelte/store";
+import type { ObservationModel } from "$lib/models/ObservationModel";
 
 export interface IObservationStore {
     addObservation(observation: ObservationModel): void;
@@ -27,7 +28,7 @@ export class ObservationStore implements IObservationStore {
         this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
     }
 
-    subscribe(subscriber: Subscriber<ObservationModel[]>): Unsubscriber {
+    subscribe(subscriber) {
         return this._store.subscribe(subscriber);
     }
 

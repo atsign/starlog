@@ -9,9 +9,9 @@
     import 'flatpickr/dist/flatpickr.css';
     import 'flatpickr/dist/themes/dark.css';
     import { createEventDispatcher } from 'svelte';
-    import type { ObservationModel } from './models/ObservationModel';
-    import type { CelestialObjectModel } from './models/CelestialObjectModel';
-    import { timeFormatter, dateFormatter } from './DateTimeFormatters';
+    import type { ObservationModel } from '$lib/models/ObservationModelel';
+    import type { CelestialObjectModel } from '$lib/models/CelestialObjectModelel';
+    import { timeFormatter, dateFormatter } from '$lib/DateTimeFormatters';
 
     const dispatch = createEventDispatcher();
 

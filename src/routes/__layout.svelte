@@ -11,9 +11,7 @@
 		SkipToContent
 	} from 'carbon-components-svelte';
 	import "carbon-components-svelte/css/g90.css";
-	import ObservationList from './ObservationList.svelte';
-
-	let isSideNavOpen = true;
+	let isSideNavOpen = false;
 </script>
 
 <Header company="StarLog" bind:isSideNavOpen persistentHamburgerMenu={true}>
@@ -24,9 +22,9 @@
 
 <SideNav bind:isOpen={isSideNavOpen}>
 	<SideNavItems>
-		<SideNavLink text="Link 1"></SideNavLink>
-		<SideNavLink text="Link 2"></SideNavLink>
-		<SideNavLink text="Link 3"></SideNavLink>
+		<SideNavLink text="Home" href="/"></SideNavLink>
+		<SideNavLink text="Observations" href="/observations"></SideNavLink>
+		<SideNavLink text="About" href="/about"></SideNavLink>
 	</SideNavItems>
 </SideNav>
 
@@ -34,7 +32,7 @@
 	<Grid>
 		<Row>
 			<Column>
-				<ObservationList />
+				<slot></slot>
 			</Column>
 		</Row>
 	</Grid>
