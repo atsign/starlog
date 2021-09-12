@@ -5,11 +5,11 @@
         Tile
     } from 'carbon-components-svelte';
     import Add16 from 'carbon-icons-svelte/lib/Add16';
-    import type { ObservationModel } from './models/ObservationModel';
-    import { dateFormatter } from './DateTimeFormatters';
+    import type { ObservationModel } from '$lib/models/ObservationModel';
+    import { dateFormatter } from '$lib/DateTimeFormatters';
     import Observation from './Observation.svelte';
     import ObservationForm from './ObservationForm.svelte';
-    import { ObservationStore } from './stores/observationStore';
+    import { ObservationStore } from '$lib/stores/observationStore';
 
 
     let isModalFormOpen = false;

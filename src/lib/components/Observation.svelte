@@ -7,8 +7,8 @@
     import Edit16 from 'carbon-icons-svelte/lib/Edit16';
     import Delete16 from 'carbon-icons-svelte/lib/Delete16';
     import { createEventDispatcher } from 'svelte';
-    import type { ObservationModel } from './models/ObservationModel';
-    import { timeFormatter } from './DateTimeFormatters';
+    import type { ObservationModel } from '$lib/models/ObservationModel';
+    import { timeFormatter } from '$lib/DateTimeFormatters';
 
     export let observation: ObservationModel;
 
