@@ -19,7 +19,7 @@
 	async function logoutClicked(event) {
 		event.preventDefault();
 		try {
-			await fetch('/logout');
+			await fetch('/logout', { mode: 'no-cors' });
 			await refreshAuthStatus();
 			goto('/logout-success');
 		} catch(err) {
