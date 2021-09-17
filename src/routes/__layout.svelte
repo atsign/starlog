@@ -1,4 +1,6 @@
 <script lang="typescript">
+	import { goto } from '$app/navigation';
+	import { isLoggedIn, refreshAuthStatus } from '$lib/stores/authStore';
 	import {
 		Column,
 		Content,
@@ -11,7 +13,21 @@
 		SkipToContent
 	} from 'carbon-components-svelte';
 	import "carbon-components-svelte/css/g90.css";
+	
 	let isSideNavOpen = false;
+
+	async function logoutClicked(event) {
+		event.preventDefault();
+		try {
+			await fetch('/logout', { mode: 'no-cors' });
+			await refreshAuthStatus();
+			goto('/logout-success');
+		} catch(err) {
+			console.error(err);
+		}
+	}
+
+	refreshAuthStatus();
 </script>
 
 <Header company="StarLog" bind:isSideNavOpen persistentHamburgerMenu={true}>
@@ -25,6 +41,12 @@
 		<SideNavLink text="Home" href="/"></SideNavLink>
 		<SideNavLink text="Observations" href="/observations"></SideNavLink>
 		<SideNavLink text="About" href="/about"></SideNavLink>
+		{#if ! $isLoggedIn}
+		<SideNavLink text="Login" href="/login"></SideNavLink>
+		{/if}
+		{#if $isLoggedIn}
+		<SideNavLink text="Logout" rel="external" href="/logout" on:click={logoutClicked}></SideNavLink>
+		{/if}
 	</SideNavItems>
 </SideNav>
 

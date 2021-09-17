@@ -1,0 +1,8 @@
+{
+    "routes": [
+        {
+            "route": "/logout",
+            "redirect": "/.auth/logout"
+        }
+    ]
+}
