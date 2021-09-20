@@ -8,15 +8,21 @@ using StarLog.Entities;
 using System.Collections.Generic;
 using StarLog.Models;
 using AutoMapper;
-using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using StarLog.Options;
 
 namespace StarLog.Function
 {
-    public static class CelestialObjectsFunction
+    public class CelestialObjectsFunction
     {
-        private static string URL = Environment.GetEnvironmentVariable("AzureCosmosEndpoint");
-        private static string KEY = Environment.GetEnvironmentVariable("AzureCosmosKey");
+        private readonly IOptions<ConnectionStringOptions> _connectionStringOptions;
+
+        public CelestialObjectsFunction(IOptions<ConnectionStringOptions> connectionStringOptions)
+        {
+            _connectionStringOptions = connectionStringOptions;
+        }
+
         private static MapperConfiguration _mapperConfig = new MapperConfiguration(cfg =>
             cfg.CreateMap<CelestialObject, CelestialObjectModel>()
                 .ForMember(dest => dest.Declination, opts => opts.MapFrom(src => src.Dec))
@@ -29,7 +35,7 @@ namespace StarLog.Function
                         )));
 
         [FunctionName("CelestialObjects")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             ILogger log)
         {   
@@ -39,7 +45,9 @@ namespace StarLog.Function
             QueryDefinition queryDef = new QueryDefinition(queryString)
                 .WithParameter("@term", searchTerm);
 
-            CosmosClient cosmosClient = new CosmosClient(URL, KEY);
+            CosmosClient cosmosClient =
+                new CosmosClient(_connectionStringOptions.Value.ServiceEndpoint.ToString(),
+                    _connectionStringOptions.Value.AuthKey);
 
             var iterator = cosmosClient
                 .GetDatabase("StarLog")
