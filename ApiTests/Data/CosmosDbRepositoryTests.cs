@@ -135,7 +135,7 @@ namespace StarLog.ApiTests.Data
             var result = await _repository.GetItemAsync<TestEntity>(itemId);
 
             // Assert
-            Assert.AreEqual(result, expectedResponse);
+            Assert.AreEqual(expectedResponse, result);
         }
 
         [TestMethod]
