@@ -1,10 +1,11 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StarLog.Data;
-using StarLog.Entities;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System;
+using Microsoft.Extensions.Options;
+using StarLog.Options;
 
 namespace StarLog.ApiTests.Data
 {
@@ -16,8 +17,20 @@ namespace StarLog.ApiTests.Data
         [TestInitialize]
         public void Initialize()
         {
-            _factory = new CosmosDbRepositoryFactory(
-                TestData.TestDbName, TestData.TestContainerNames, new Mock<CosmosClient>().Object);
+            var mockCosmosOptions = new Mock<IOptions<CosmosDbOptions>>();
+            
+            mockCosmosOptions.SetupGet(opts => opts.Value)
+                .Returns(new CosmosDbOptions
+                {
+                    DatabaseName = TestData.TestDbName,
+                    ContainerNames = new List<ContainerInfo>
+                    {
+                        new ContainerInfo { Name = TestData.TestContainerNames[0], PartitionKey = "/id" },
+                        new ContainerInfo { Name = TestData.TestContainerNames[1], PartitionKey = "/id" }
+                    }
+                });
+
+            _factory = new CosmosDbRepositoryFactory(mockCosmosOptions.Object, new Mock<CosmosClient>().Object);
         }
 
         [ExpectedException(typeof(ArgumentException))]

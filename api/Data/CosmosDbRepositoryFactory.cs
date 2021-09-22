@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Azure.Cosmos;
-using StarLog.Entities;
+using Microsoft.Extensions.Options;
+using StarLog.Options;
 
 namespace StarLog.Data
 {
@@ -12,16 +14,15 @@ namespace StarLog.Data
         private readonly CosmosClient _client;
 
         public CosmosDbRepositoryFactory(
-            string databaseName, List<string> containerNames, CosmosClient client)
+            IOptions<CosmosDbOptions> cosmosDbOptions,
+            CosmosClient client)
         {
-            _databaseName = databaseName;
-            _containerNames = containerNames;
+            _databaseName = cosmosDbOptions.Value?.DatabaseName
+                ?? throw new ArgumentException(nameof(CosmosDbOptions.DatabaseName));
+            _containerNames = cosmosDbOptions.Value?.ContainerNames?.Select(c => c.Name)?.ToList()
+                ?? throw new ArgumentException(nameof(CosmosDbOptions.ContainerNames));
+            
             _client = client;
-        }
-
-        ~CosmosDbRepositoryFactory()
-        {
-            _client.Dispose();
         }
 
         public ICosmosDbRepository GetCosmosDbRepository(string containerName)
