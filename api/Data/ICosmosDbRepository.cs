@@ -4,12 +4,17 @@ using StarLog.Entities;
 
 namespace StarLog.Data
 {
-    public interface ICosmosDbRepository<TEntity> where TEntity : Entity
+    public interface ICosmosDbRepository
     {
-        Task<IEnumerable<TEntity>> GetItemsAsync(string query);
-        Task<TEntity> GetItemAsync(string id);
-        Task AddItemAsync(TEntity item);
-        Task UpdateItemAsync(string id, TEntity item);
-        Task DeleteItemAsync(string id);
+        Task<IEnumerable<TEntity>> GetItemsAsync<TEntity>(string queryString)
+          where TEntity : Entity;
+        Task<TEntity> GetItemAsync<TEntity>(string id)
+          where TEntity : Entity;
+        Task AddItemAsync<TEntity>(TEntity item)
+          where TEntity : Entity;
+        Task UpdateItemAsync<TEntity>(string id, TEntity item)
+          where TEntity : Entity;
+        Task DeleteItemAsync<TEntity>(TEntity item)
+          where TEntity: Entity;
     }
 }

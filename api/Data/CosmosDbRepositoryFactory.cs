@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
 using StarLog.Entities;
@@ -23,10 +24,14 @@ namespace StarLog.Data
             _client.Dispose();
         }
 
-        public ICosmosDbRepository<TEntity> GetCosmosDbRepository<TEntity>(string containerName)
-            where TEntity : Entity
+        public ICosmosDbRepository GetCosmosDbRepository(string containerName)
         {
-            throw new System.NotImplementedException();
+            if (! _containerNames.Contains(containerName))
+            {
+                throw new ArgumentException($"Container {containerName} not found in container name collections. Is it missing from configuration?");
+            }
+
+            return new CosmosDbRepository(_client, _databaseName, containerName);
         }
     }
 }
