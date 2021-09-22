@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using StarLog.Data;
@@ -12,7 +13,7 @@ namespace StarLog.Extensions
     {
         public static IServiceCollection AddCosmosDb(this IServiceCollection services)
         {
-            services.AddSingleton<CosmosClient>(serviceProvider => {
+            services.AddSingleton(serviceProvider => {
                 var connectionStringOptions =
                     serviceProvider.GetRequiredService<IOptions<ConnectionStringOptions>>();
 
@@ -21,7 +22,7 @@ namespace StarLog.Extensions
                 var authKey = connectionStringOptions.Value?.AuthKey
                     ?? throw new ArgumentException(nameof(ConnectionStringOptions.AuthKey));
 
-                return new CosmosClient(serviceEndpoint.ToString(), authKey);
+                return new CosmosClientBuilder(serviceEndpoint.ToString(), authKey).Build();
             });
 
             services.AddSingleton<ICosmosDbRepositoryFactory, CosmosDbRepositoryFactory>();

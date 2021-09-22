@@ -43,7 +43,14 @@ namespace StarLog.Data
 
         public async Task<IEnumerable<TEntity>> GetItemsAsync<TEntity>(string queryString) where TEntity : Entity
         {
-            var query = _container.GetItemQueryIterator<TEntity>(new QueryDefinition(queryString));
+            var queryDefinition = new QueryDefinition(queryString);
+
+            return await GetItemsAsync<TEntity>(queryDefinition);
+        }
+
+        public async Task<IEnumerable<TEntity>> GetItemsAsync<TEntity>(QueryDefinition queryDefinition) where TEntity : Entity
+        {
+            var query = _container.GetItemQueryIterator<TEntity>(queryDefinition);
             List<TEntity> results = new List<TEntity>();
             while (query.HasMoreResults)
             {
