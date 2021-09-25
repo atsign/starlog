@@ -16,7 +16,12 @@ namespace StarLog.Extensions.MapperConfigurations
                         src.CommonNames.Length > 0
                             ? src.CommonNames.Split(",", System.StringSplitOptions.None)
                             : null as string[]
-                        ));
+                        ))
+                .ReverseMap()
+                .ForMember(dest => dest.RA, opts => opts.MapFrom(src => src.RightAscension))
+                .ForMember(dest => dest.Dec, opts => opts.MapFrom(src => src.Declination))
+                .ForMember(dest => dest.CommonNames, opts =>
+                    opts.MapFrom(src => string.Join(",", src.CommonNames)));
             
             return cfg;
         }
