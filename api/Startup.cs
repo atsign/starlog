@@ -25,6 +25,7 @@ namespace StarLog
                 });
             
             builder.Services.AddCosmosDb();
+            builder.Services.AddMapperConfigurations();
         }
     }
 }

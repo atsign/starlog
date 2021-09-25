@@ -17,23 +17,16 @@ namespace StarLog.Function
     public class CelestialObjectsFunction
     {
         private readonly ICosmosDbRepository _celestialObjectRepository;
+        private readonly IMapper _mapper;
 
-        public CelestialObjectsFunction(ICosmosDbRepositoryFactory factory)
+        public CelestialObjectsFunction(
+            ICosmosDbRepositoryFactory factory,
+            IMapper mapper)
         {
             _celestialObjectRepository =
                 factory.GetCosmosDbRepository(Constants.ContainerNames.CelestialObjects);
+            _mapper = mapper;
         }
-
-        private static MapperConfiguration _mapperConfig = new MapperConfiguration(cfg =>
-            cfg.CreateMap<CelestialObject, CelestialObjectModel>()
-                .ForMember(dest => dest.Declination, opts => opts.MapFrom(src => src.Dec))
-                .ForMember(dest => dest.RightAscension, opts => opts.MapFrom(src => src.RA))
-                .ForMember(dest => dest.CommonNames, opts =>
-                    opts.MapFrom(src =>
-                        src.CommonNames.Length > 0
-                            ? src.CommonNames.Split(",", System.StringSplitOptions.None)
-                            : null as string[]
-                        )));
 
         [FunctionName("CelestialObjects")]
         public async Task<IActionResult> Run(
@@ -46,10 +39,9 @@ namespace StarLog.Function
                 .WithParameter("@term", searchTerm);
 
             var items = await _celestialObjectRepository.GetItemsAsync<CelestialObject>(queryDef);
-            var mapper = _mapperConfig.CreateMapper(); // TODO: Pull the mapper stuff into its own service
 
             List<CelestialObjectModel> results
-                = items.Select(item => mapper.Map<CelestialObjectModel>(item)).ToList();
+                = items.Select(item => _mapper.Map<CelestialObjectModel>(item)).ToList();
 
             return new OkObjectResult(results);
         }
