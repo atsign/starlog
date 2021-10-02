@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using StarLog.Services;
+using StarLog.Extensions;
 
 namespace StarLog.Functions
 {
@@ -19,11 +20,15 @@ namespace StarLog.Functions
 
         [FunctionName("Observations")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.User, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
-            // TODO: Get the user ID from Azure
-            var observations = await _observationService.GetObservationsForUserAsync("7573f1d69c40c45120a91cf675ec34d6");
+            string userId = req.ParseClaimsPrincipal().GetUserId();
+
+            if (userId == null)
+                return new UnauthorizedResult();
+
+            var observations = await _observationService.GetObservationsForUserAsync(userId);
             return new OkObjectResult(observations);
         }
     }

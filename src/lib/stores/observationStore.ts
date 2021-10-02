@@ -1,4 +1,4 @@
-import { writable } from "svelte/store";
+import { writable, readable } from "svelte/store";
 import type { Subscriber, Unsubscriber, Writable } from "svelte/store";
 import type { ObservationModel } from "$lib/models/ObservationModel";
 
@@ -8,12 +8,27 @@ export interface IObservationStore {
     subscribe(subscriber: Subscriber<ObservationModel[]>): Unsubscriber;
 }
 
+let _setIsLoading: Subscriber<boolean>;
+
+export const isLoading = readable(true, (set: Subscriber<boolean>) => {
+    _setIsLoading = set;
+})
+
 export class ObservationStore implements IObservationStore {
     private _store: Writable<ObservationModel[]>;
     private _currentId: number = 1;
 
     constructor() {
         this._store = writable([]);
+
+        _setIsLoading(true);
+
+        fetch(`/api/Observations`)
+            .then(result => result.json())
+            .then((observations: ObservationModel[]) => {
+                this._store.set(observations);
+            })
+            .finally(() => _setIsLoading(false));
     }
 
     addObservation(observation: ObservationModel): void {

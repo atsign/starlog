@@ -2,14 +2,15 @@
     import {
         Button,
         Modal,
-        Tile
+        Tile,
+        SkeletonPlaceholder
     } from 'carbon-components-svelte';
     import Add16 from 'carbon-icons-svelte/lib/Add16';
     import type { ObservationModel } from '$lib/models/ObservationModel';
     import { dateFormatter } from '$lib/DateTimeFormatters';
     import Observation from './Observation.svelte';
     import ObservationForm from './ObservationForm.svelte';
-    import { ObservationStore } from '$lib/stores/observationStore';
+    import { ObservationStore, isLoading } from '$lib/stores/observationStore';
 
 
     let isModalFormOpen = false;
@@ -94,22 +95,26 @@
     on:click:button--primary={() => handleObservationDelete()}
 />
 
-<Button icon={Add16} on:click={handleNewObservation} style="margin-bottom: 40px">
-    New Observation
-</Button>
+{#if $isLoading}
+<SkeletonPlaceholder />
+{:else}
+    <Button icon={Add16} on:click={handleNewObservation} style="margin-bottom: 40px">
+        New Observation
+    </Button>
 
-{#each [...mapObservationsToDates($observationStore)] as [date, observations]}
-<Tile>
-    <h2>{date}</h2>
-    {#each observations as observation}
-        <Observation observation={observation}
-            on:observationDelete={handleObservationDeleteButton}
-            on:observationEdit={handleObservationEdit} />
+    {#each [...mapObservationsToDates($observationStore)] as [date, observations]}
+    <Tile>
+        <h2>{date}</h2>
+        {#each observations as observation}
+            <Observation observation={observation}
+                on:observationDelete={handleObservationDeleteButton}
+                on:observationEdit={handleObservationEdit} />
+        {/each}
+    </Tile>
+    {:else }
+        <p>Add some observations to get started!</p>
     {/each}
-</Tile>
-{:else }
-    <p>Add some observations to get started!</p>
-{/each}
+{/if}
 
 <style>
     h2 {

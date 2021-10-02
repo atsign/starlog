@@ -21,7 +21,7 @@ namespace StarLog.Services
                 {
                     Id = "8c50e82d-9d81-49a1-be2d-622198e2e729",
                     Date = new System.DateTime(2021, 9, 25, 22, 30, 0),
-                    Notes = "This one is fucked up",
+                    Notes = "This is a test observation",
                     CelestialObject = new CelestialObjectModel
                     {
                         Name = "IC0190",
@@ -33,7 +33,14 @@ namespace StarLog.Services
                 }
             };
 
-            return Task.FromResult(fakeResult);
+            if (userId == "7573f1d69c40c45120a91cf675ec34d6")
+            {
+                return Task.FromResult(fakeResult);
+            }
+            else
+            {
+                return Task.FromResult(null as List<ObservationModel>);
+            }
         }
     }
 }
