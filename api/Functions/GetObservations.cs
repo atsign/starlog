@@ -20,7 +20,7 @@ namespace StarLog.Functions
 
         [FunctionName("Observations")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.User, "get", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             string userId = req.ParseClaimsPrincipal().GetUserId();
