@@ -26,7 +26,7 @@ export class ObservationStore implements IObservationStore {
         fetch(`/api/Observations`)
             .then(result => result.json())
             .then((observations: ObservationModel[]) => {
-                this._store.set(observations);
+                this._store.set(observations.map(this.reviveDate));
             })
             .finally(() => _setIsLoading(false));
     }
@@ -74,5 +74,10 @@ export class ObservationStore implements IObservationStore {
 
     private sortObservations(observations: ObservationModel[]): ObservationModel[] {
         return observations.sort((a, b) => a.dateTime > b.dateTime ? -1 : 1);
+    }
+
+    private reviveDate(observation: ObservationModel): ObservationModel {
+        observation.dateTime = new Date(observation.dateTime);
+        return observation;
     }
 }

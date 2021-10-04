@@ -1,6 +1,8 @@
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using StarLog.Entities;
 using StarLog.Extensions.MapperConfigurations;
+using StarLog.Models;
 
 namespace StarLog.Extensions
 {
@@ -10,6 +12,8 @@ namespace StarLog.Extensions
         {
             services.AddSingleton<IMapper>(serviceProvider => {
                 var cfg = new MapperConfiguration(cfg => {
+                    cfg.CreateMap<Observation, ObservationModel>()
+                        .ReverseMap();
                     cfg.AddCelestialObjectMapperConfiguration();
                 });
 
