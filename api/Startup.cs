@@ -1,9 +1,9 @@
-using System.IO;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StarLog.Extensions;
 using StarLog.Options;
+using StarLog.Services;
 
 [assembly: FunctionsStartup(typeof(StarLog.Startup))]
 namespace StarLog
@@ -25,6 +25,10 @@ namespace StarLog
                 });
             
             builder.Services.AddCosmosDb();
+            builder.Services.AddMapperConfigurations();
+
+            builder.Services.AddScoped<ICelestialObjectService, CelestialObjectService>();
+            builder.Services.AddScoped<IObservationService, ObservationService>();
         }
     }
 }
