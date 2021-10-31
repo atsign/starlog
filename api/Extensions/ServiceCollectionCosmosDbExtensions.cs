@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -20,7 +21,12 @@ namespace StarLog.Extensions
                 var authKey = connectionStringOptions.Value?.AuthKey
                     ?? throw new ArgumentException(nameof(ConnectionStringOptions.AuthKey));
 
-                return new CosmosClientBuilder(serviceEndpoint.ToString(), authKey).Build();
+                return new CosmosClientBuilder(serviceEndpoint.ToString(), authKey)
+                    .WithSerializerOptions(new CosmosSerializationOptions
+                    {
+                        PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                    })
+                    .Build();
             });
 
             services.AddSingleton<ICosmosDbRepositoryFactory, CosmosDbRepositoryFactory>();

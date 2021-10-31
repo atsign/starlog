@@ -7,5 +7,6 @@ namespace StarLog.Entities
         public DateTime DateTime { get; set; }
         public CelestialObject CelestialObject { get; set; }
         public string Notes { get; set; }
+        public string UserId { get; set; }
     }
 }

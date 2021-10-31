@@ -7,5 +7,6 @@ namespace StarLog.Services
     public interface IObservationService
     {
         Task<List<ObservationModel>> GetObservationsForUserAsync(string userId);
+        Task<string> InsertObservationForUserAsync(ObservationModel observation, string userId);
     }
 }

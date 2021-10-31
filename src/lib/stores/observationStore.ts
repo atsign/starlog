@@ -16,7 +16,6 @@ export const isLoading = readable(true, (set: Subscriber<boolean>) => {
 
 export class ObservationStore implements IObservationStore {
     private _store: Writable<ObservationModel[]>;
-    private _currentId: number = 1;
 
     constructor() {
         this._store = writable([]);
@@ -32,14 +31,24 @@ export class ObservationStore implements IObservationStore {
     }
 
     addObservation(observation: ObservationModel): void {
-        this._store.update(observations => this.addObservationToStore(observation, observations));
+        _setIsLoading(true);
+
+        this.saveObservationToDatabase(observation)
+        .then((itemId) => {
+            observation.id = itemId;
+            this._store.update(observations => this.addObservationToStore(observation, observations));
+        })
+        .catch((err) => console.error(err))
+        .finally(() => {
+            _setIsLoading(false);
+        });
     }
 
     editObservation(observation: ObservationModel): void {
         this._store.update(observations => this.editObservationInStore(observation, observations));
     }
 
-    deleteObservation(observationId: number): void {
+    deleteObservation(observationId: string): void {
         this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
     }
 
@@ -48,7 +57,6 @@ export class ObservationStore implements IObservationStore {
     }
 
     private addObservationToStore(observation: ObservationModel, observations: ObservationModel[]): ObservationModel[] {
-        observation.id = this._currentId++; // Temporary solution. These should be unique identifiers.
         observations.push(observation);
 
         return this.sortObservations(observations);
@@ -66,7 +74,7 @@ export class ObservationStore implements IObservationStore {
         return this.sortObservations(observations);
     }
 
-    private deleteObservationFromStore(observationId: number, observations: ObservationModel[]): ObservationModel[] {
+    private deleteObservationFromStore(observationId: string, observations: ObservationModel[]): ObservationModel[] {
         const indexToDelete = observations.findIndex(observation => observation.id === observationId);
         observations.splice(indexToDelete, 1);
         return observations;
@@ -80,4 +88,18 @@ export class ObservationStore implements IObservationStore {
         observation.dateTime = new Date(observation.dateTime);
         return observation;
     }
+
+    private saveObservationToDatabase(observation: ObservationModel): Promise<string> {
+        return fetch('/api/InsertObservation', {
+            method: 'POST',
+            body: JSON.stringify(observation)
+        })
+        .then(res => {
+            if (res.ok) {
+                return res.text();
+            } else {
+                throw new Error(res.statusText);
+            }
+        });
+    } 
 }

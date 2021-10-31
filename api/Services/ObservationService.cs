@@ -31,5 +31,13 @@ namespace StarLog.Services
 
             return _mapper.Map<List<ObservationModel>>(results.ToList());
         }
+
+        public async Task<string> InsertObservationForUserAsync(ObservationModel observationModel, string userId)
+        {
+            var observation = _mapper.Map<Observation>(observationModel);
+            observation.UserId = userId;
+            var itemId = await _repository.AddItemAsync(_mapper.Map<Observation>(observation));
+            return itemId;
+        }
     }
 }

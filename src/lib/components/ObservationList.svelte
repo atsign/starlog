@@ -12,13 +12,18 @@
     import ObservationForm from './ObservationForm.svelte';
     import { ObservationStore, isLoading } from '$lib/stores/observationStore';
 
+    interface ObservationsViewModel {
+        [date: string]: ObservationModel[]
+    };
 
     let isModalFormOpen = false;
     let isModalConfirmOpen = false;
     let observationStore = new ObservationStore();
-    let editId: number;
-    let deleteId: number;
+    let editId: string;
+    let deleteId: string;
+    let observationsViewModel: ObservationsViewModel;
     $: observationToEdit = $observationStore.find(observation => observation.id === editId);
+    $: observationsViewModel = mapObservationsToViewModel($observationStore);
 
     function handleNewObservation() {
         isModalFormOpen = true;
@@ -62,17 +67,17 @@
         isModalFormOpen = false;
     }
 
-    function mapObservationsToDates(observations: ObservationModel[]): Map<string, ObservationModel[]> {
-        const observationMap = new Map<string, ObservationModel[]>();
+    function mapObservationsToViewModel(observations: ObservationModel[]): ObservationsViewModel {
+        const observationMap: ObservationsViewModel = {};
 
         observations.map(observation => {
-            const dateKey: string = dateFormatter.format(observation.dateTime);
-            if (observationMap.has(dateKey)) {
-                observationMap.get(dateKey).push(observation);
+            const dateKey: string = observation.dateTime.toISOString().split('T')[0];
+            if (observationMap[dateKey]) {
+                observationMap[dateKey].push(observation);
             } else {
-                observationMap.set(dateKey, [observation]);
+                observationMap[dateKey] = [observation];
             }
-        })
+        });
 
         return observationMap;
     }
@@ -102,10 +107,10 @@
         New Observation
     </Button>
 
-    {#each [...mapObservationsToDates($observationStore)] as [date, observations]}
+    {#each Object.keys(observationsViewModel).sort((a, b) => b > a ? 1 : -1) as date}
     <Tile>
-        <h2>{date}</h2>
-        {#each observations as observation}
+        <h2>{dateFormatter.format(observationsViewModel[date][0].dateTime)}</h2>
+        {#each observationsViewModel[date] as observation}
             <Observation observation={observation}
                 on:observationDelete={handleObservationDeleteButton}
                 on:observationEdit={handleObservationEdit} />

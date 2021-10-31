@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,9 +19,11 @@ namespace StarLog.Data
             _container = dbClient.GetContainer(databaseName, containerName);
         }
 
-        public async Task AddItemAsync<TEntity>(TEntity item) where TEntity : Entity
+        public async Task<string> AddItemAsync<TEntity>(TEntity item) where TEntity : Entity
         {
-            await _container.CreateItemAsync(item);
+            item.Id = Guid.NewGuid().ToString();
+            var result = await _container.CreateItemAsync(item);
+            return result.Resource.Id;
         }
 
         public async Task DeleteItemAsync<TEntity>(TEntity item) where TEntity : Entity
