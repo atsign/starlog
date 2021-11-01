@@ -22,6 +22,35 @@ namespace StarLog.Services
             _mapper = mapper;
         }
 
+        public async Task<bool> DeleteObservationForUserAsync(string observationId, string userId)
+        {
+            bool deleted = false;
+            var observation = await GetObservationForUserByIdAsync(userId, observationId);
+
+            if (observation != null)
+            {
+                await _repository.DeleteItemAsync(_mapper.Map<Observation>(observation));
+                deleted = true;
+            }
+
+            return deleted;
+        }
+
+        public async Task<ObservationModel> GetObservationForUserByIdAsync(string userId, string observationId)
+        {
+            var query = new QueryDefinition(Constants.QueryStrings.GetObservationByItemIdAndUserId)
+                .WithParameter("@userId", userId)
+                .WithParameter("@itemId", observationId);
+            
+            var result = (await _repository.GetItemsAsync<Observation>(query))
+                ?.ToList()
+                ?.FirstOrDefault();
+
+            return result != null
+                ? _mapper.Map<ObservationModel>(result)
+                : null;
+        }
+
         public async Task<List<ObservationModel>> GetObservationsForUserAsync(string userId)
         {
             var query = new QueryDefinition(Constants.QueryStrings.GetObservationsByUserId)
@@ -30,6 +59,14 @@ namespace StarLog.Services
             var results = await _repository.GetItemsAsync<Observation>(query);
 
             return _mapper.Map<List<ObservationModel>>(results.ToList());
+        }
+
+        public async Task<string> InsertObservationForUserAsync(ObservationModel observationModel, string userId)
+        {
+            var observation = _mapper.Map<Observation>(observationModel);
+            observation.UserId = userId;
+            var itemId = await _repository.AddItemAsync(_mapper.Map<Observation>(observation));
+            return itemId;
         }
     }
 }

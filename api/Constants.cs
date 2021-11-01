@@ -18,6 +18,7 @@ namespace StarLog
         {
             public const string GetCelestialObjectsBySearchTerm = "SELECT TOP 5 * FROM c WHERE CONTAINS(UPPER(c.Name), @term) OR CONTAINS(UPPER(c[\"Common names\"]), @term)";
             public const string GetObservationsByUserId = "SELECT * FROM c WHERE c.userId = @userId";
+            public const string GetObservationByItemIdAndUserId = "SELECT * FROM c WHERE c.userId = @userId AND c.id = @itemId";
         }
     }
 }

@@ -14,7 +14,7 @@ namespace StarLog.Data
           where TEntity : Entity;
         Task<TEntity> GetItemAsync<TEntity>(string id)
           where TEntity : Entity;
-        Task AddItemAsync<TEntity>(TEntity item)
+        Task<string> AddItemAsync<TEntity>(TEntity item)
           where TEntity : Entity;
         Task UpdateItemAsync<TEntity>(string id, TEntity item)
           where TEntity : Entity;

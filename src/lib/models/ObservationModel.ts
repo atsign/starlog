@@ -4,5 +4,5 @@ export interface ObservationModel {
     dateTime: Date;
     celestialObject: CelestialObjectModel;
     notes: string;
-    id?: number;
+    id?: string;
 }
