@@ -39,9 +39,7 @@ export class ObservationStore implements IObservationStore {
             this._store.update(observations => this.addObservationToStore(observation, observations));
         })
         .catch((err) => console.error(err))
-        .finally(() => {
-            _setIsLoading(false);
-        });
+        .finally(() => _setIsLoading(false));
     }
 
     editObservation(observation: ObservationModel): void {
@@ -49,7 +47,18 @@ export class ObservationStore implements IObservationStore {
     }
 
     deleteObservation(observationId: string): void {
-        this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
+        _setIsLoading(true);
+
+        this.deleteObservationFromDatabase(observationId)
+        .then(success => {
+            if (success) {
+                this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
+            } else {
+                throw new Error(`Observation with ID ${observationId} could not be deleted`);
+            }
+        })
+        .catch(err => console.error(err))
+        .finally(() => _setIsLoading(false));
     }
 
     subscribe(subscriber) {
@@ -89,6 +98,8 @@ export class ObservationStore implements IObservationStore {
         return observation;
     }
 
+    // TODO: Move API calls to separate HTTP service class
+
     private saveObservationToDatabase(observation: ObservationModel): Promise<string> {
         return fetch('/api/InsertObservation', {
             method: 'POST',
@@ -101,5 +112,11 @@ export class ObservationStore implements IObservationStore {
                 throw new Error(res.statusText);
             }
         });
-    } 
+    }
+
+    private deleteObservationFromDatabase(id: string): Promise<boolean> {
+        return fetch(`/api/deleteObservation?id=${id}`, { method: 'POST' })
+            .then(res => res.ok)
+            .catch(() => false);
+    }
 }

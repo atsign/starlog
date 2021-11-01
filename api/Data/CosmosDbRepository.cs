@@ -23,7 +23,7 @@ namespace StarLog.Data
         {
             item.Id = Guid.NewGuid().ToString();
             var result = await _container.CreateItemAsync(item);
-            return result.Resource.Id;
+            return result?.Resource.Id;
         }
 
         public async Task DeleteItemAsync<TEntity>(TEntity item) where TEntity : Entity

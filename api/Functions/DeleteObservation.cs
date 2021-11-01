@@ -1,47 +1,53 @@
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using StarLog.Services;
-using StarLog.Models;
 using AutoMapper;
 using StarLog.Extensions;
+using Microsoft.Extensions.Primitives;
+using System.Linq;
 
 namespace StarLog.Functions
 {
-    public class InsertObservation
+    public class DeleteObservation
     {
         private readonly IObservationService _observationService;
-        private IMapper _mapper;
 
-        public InsertObservation(
+        public DeleteObservation(
             IObservationService observationService,
             IMapper mapper)
         {
             _observationService = observationService;
-            _mapper = mapper;
         }
 
-        [FunctionName("InsertObservation")]
+        [FunctionName("DeleteObservation")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             string userId = req.ParseClaimsPrincipal().GetUserId();
+            bool deleted = false;
 
             if (userId == null)
                 return new UnauthorizedResult();
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var observationModel = JsonConvert.DeserializeObject<ObservationModel>(requestBody);
+            if (req.Query.TryGetValue("id", out StringValues ids))
+            {
+                var observationId = ids.First();
+                deleted = await _observationService.DeleteObservationForUserAsync(observationId, userId);
+            }
 
-            var itemId = await _observationService.InsertObservationForUserAsync(observationModel, userId);
-
-            return new OkObjectResult(itemId);
+            if (deleted)
+            {
+                return new OkResult();
+            }
+            else
+            {
+                return new NotFoundResult();
+            }
         }
     }
 }
