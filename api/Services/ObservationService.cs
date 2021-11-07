@@ -68,5 +68,21 @@ namespace StarLog.Services
             var itemId = await _repository.AddItemAsync(_mapper.Map<Observation>(observation));
             return itemId;
         }
+
+        public async Task<bool> UpdateObservationForUserAsync(ObservationModel observationModel, string userId)
+        {
+            bool updated = false;
+            var existingObservation = GetObservationForUserByIdAsync(userId, observationModel.Id);
+
+            if (existingObservation != null)
+            {
+                var updatedObservation = _mapper.Map<Observation>(observationModel);
+                updatedObservation.UserId = userId;
+                await _repository.UpdateItemAsync(updatedObservation.Id, updatedObservation);
+                updated = true;
+            }
+
+            return updated;
+        }
     }
 }
