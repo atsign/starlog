@@ -1,3 +1,4 @@
+import { observationHttpService } from "$lib/services/observationHttpService";
 import { writable, readable } from "svelte/store";
 import type { Subscriber, Unsubscriber, Writable } from "svelte/store";
 import type { ObservationModel } from "$lib/models/ObservationModel";
@@ -22,8 +23,8 @@ export class ObservationStore implements IObservationStore {
 
         _setIsLoading(true);
 
-        fetch(`/api/Observations`)
-            .then(result => result.json())
+        observationHttpService
+            .getObservations()
             .then((observations: ObservationModel[]) => {
                 this._store.set(observations.map(this.reviveDate));
             })
@@ -33,32 +34,46 @@ export class ObservationStore implements IObservationStore {
     addObservation(observation: ObservationModel): void {
         _setIsLoading(true);
 
-        this.saveObservationToDatabase(observation)
-        .then((itemId) => {
-            observation.id = itemId;
-            this._store.update(observations => this.addObservationToStore(observation, observations));
-        })
-        .catch((err) => console.error(err))
-        .finally(() => _setIsLoading(false));
+        observationHttpService
+            .saveObservation(observation)
+            .then((itemId) => {
+                observation.id = itemId;
+                this._store.update(observations => this.addObservationToStore(observation, observations));
+            })
+            .catch((err) => console.error(err))
+            .finally(() => _setIsLoading(false));
     }
 
     editObservation(observation: ObservationModel): void {
-        this._store.update(observations => this.editObservationInStore(observation, observations));
+        _setIsLoading(true);
+
+        observationHttpService
+            .updateObservation(observation)
+            .then(success => {
+                if (success) {
+                    this._store.update(observations => this.editObservationInStore(observation, observations));
+                } else {
+                    throw new Error(`Observation with ID ${observation.id} could not be updated`);
+                }
+            })
+            .catch(err => console.log(err))
+            .finally(() => _setIsLoading(false));
     }
 
     deleteObservation(observationId: string): void {
         _setIsLoading(true);
 
-        this.deleteObservationFromDatabase(observationId)
-        .then(success => {
-            if (success) {
-                this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
-            } else {
-                throw new Error(`Observation with ID ${observationId} could not be deleted`);
-            }
-        })
-        .catch(err => console.error(err))
-        .finally(() => _setIsLoading(false));
+        observationHttpService
+            .deleteObservation(observationId)
+            .then(success => {
+                if (success) {
+                    this._store.update(observations => this.deleteObservationFromStore(observationId, observations));
+                } else {
+                    throw new Error(`Observation with ID ${observationId} could not be deleted`);
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => _setIsLoading(false));
     }
 
     subscribe(subscriber) {
@@ -96,27 +111,5 @@ export class ObservationStore implements IObservationStore {
     private reviveDate(observation: ObservationModel): ObservationModel {
         observation.dateTime = new Date(observation.dateTime);
         return observation;
-    }
-
-    // TODO: Move API calls to separate HTTP service class
-
-    private saveObservationToDatabase(observation: ObservationModel): Promise<string> {
-        return fetch('/api/InsertObservation', {
-            method: 'POST',
-            body: JSON.stringify(observation)
-        })
-        .then(res => {
-            if (res.ok) {
-                return res.text();
-            } else {
-                throw new Error(res.statusText);
-            }
-        });
-    }
-
-    private deleteObservationFromDatabase(id: string): Promise<boolean> {
-        return fetch(`/api/deleteObservation?id=${id}`, { method: 'POST' })
-            .then(res => res.ok)
-            .catch(() => false);
     }
 }
